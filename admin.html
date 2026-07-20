@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrdDown Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0a1a; color: #fff; }
+        .sidebar { background: rgba(15,23,42,0.8); backdrop-filter: blur(10px); }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 p-5 flex flex-col gap-6 border-l border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center">
+                    <i class="fa-solid fa-bolt text-white"></i>
+                </div>
+                <span class="font-black">KrdDown Admin</span>
+            </div>
+            <nav class="flex flex-col gap-2">
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl bg-pink-500/10 text-pink-400 font-bold">
+                    <i class="fa-solid fa-chart-line"></i> داشبۆرد
+                </a>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-download"></i> داونلۆدەکان
+                </a>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-users"></i> بەکارهێنەران
+                </a>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-chart-simple"></i> ئامارەکان
+                </a>
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-gear"></i> ڕێکخستنەکان
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 overflow-y-auto">
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-2xl font-black">داشبۆرد 📊</h1>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-emerald-400"><span class="led-dot"></span> Online</span>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600"></div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-4 mb-8">
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-download text-pink-500"></i>
+                        </div>
+                        <span class="text-xs text-slate-400">کۆی داونلۆدەکان</span>
+                    </div>
+                    <span class="text-2xl font-black" id="totalDownloads">0</span>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-users text-purple-500"></i>
+                        </div>
+                        <span class="text-xs text-slate-400">سەردانکەرانی ئەمڕۆ</span>
+                    </div>
+                    <span class="text-2xl font-black" id="todayVisits">0</span>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-globe text-emerald-500"></i>
+                        </div>
+                        <span class="text-xs text-slate-400">پلاتفۆرمەکان</span>
+                    </div>
+                    <span class="text-2xl font-black" id="platformCount">6</span>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-star text-amber-500"></i>
+                        </div>
+                        <span class="text-xs text-slate-400">ڕێژەی ڕەزامەندی</span>
+                    </div>
+                    <span class="text-2xl font-black" id="rating">4.8</span>
+                </div>
+            </div>
+
+            <!-- Charts Placeholder -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="stat-card rounded-2xl p-5">
+                    <h3 class="font-bold mb-4">داونلۆدەکان بەپێی پلاتفۆرم</h3>
+                    <div class="space-y-3" id="platformStats">
+                        <p class="text-xs text-slate-500">چاوەڕوانی داتا...</p>
+                    </div>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <h3 class="font-bold mb-4">دوایین چالاکییەکان</h3>
+                    <div class="space-y-3" id="recentActivity">
+                        <p class="text-xs text-slate-500">چاوەڕوانی داتا...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        function loadDashboard() {
+            const analytics = JSON.parse(localStorage.getItem('krddown_analytics') || '{}');
+            
+            // Total downloads
+            document.getElementById('totalDownloads').textContent = analytics.totalDownloads || 0;
+            
+            // Today visits
+            const today = new Date().toISOString().split('T')[0];
+            const todayVisits = analytics.dailyVisits?.[today] || 0;
+            document.getElementById('todayVisits').textContent = todayVisits;
+            
+            // Platform stats
+            const platformStats = document.getElementById('platformStats');
+            if (analytics.platformStats && Object.keys(analytics.platformStats).length > 0) {
+                platformStats.innerHTML = Object.entries(analytics.platformStats)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([platform, count]) => `
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs">${platform}</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-24 h-2 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-pink-500 rounded-full" style="width: ${Math.min((count / analytics.totalDownloads) * 100, 100)}%"></div>
+                                </div>
+                                <span class="text-xs text-slate-400">${count}</span>
+                            </div>
+                        </div>
+                    `).join('');
+            }
+        }
+        
+        loadDashboard();
+        setInterval(loadDashboard, 5000);
+    </script>
+</body>
+</html>
