@@ -1,0 +1,79 @@
+/* ===== OLED Dark Mode ===== */
+.oled-mode {
+    --bg-gradient: #000000;
+    --bg-color: #000000;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --glass-bg: rgba(255,255,255,0.02);
+    --glass-border: rgba(255,255,255,0.04);
+    --glass-hover: rgba(255,255,255,0.08);
+    --input-bg: rgba(255,255,255,0.03);
+    --card-vip: linear-gradient(135deg, #000000, rgba(168,85,247,0.05));
+}
+
+/* ===== Sepia Mode ===== */
+.sepia-mode {
+    --bg-gradient: radial-gradient(ellipse at 30% 40%, rgba(139,69,19,0.06) 0%, transparent 60%),
+                   radial-gradient(ellipse at 70% 60%, rgba(160,82,45,0.06) 0%, transparent 60%),
+                   #f4ecd8;
+    --bg-color: #f4ecd8;
+    --text-main: #3e2723;
+    --text-muted: #5d4037;
+    --glass-bg: rgba(139,69,19,0.05);
+    --glass-border: rgba(139,69,19,0.1);
+    --glass-hover: rgba(139,69,19,0.15);
+    --input-bg: rgba(139,69,19,0.06);
+    --card-vip: linear-gradient(135deg, #f4ecd8, rgba(245,158,11,0.1));
+}
+
+/* ===== Theme Toggle Button ===== */
+.theme-menu {
+    position: absolute;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 8px;
+    z-index: 1000;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    min-width: 160px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: right;
+}
+
+.theme-option:hover {
+    background: rgba(255,255,255,0.06);
+}
+
+.theme-option.active {
+    background: rgba(236,72,153,0.15);
+    color: #ec4899;
+}
+
+.theme-option i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
