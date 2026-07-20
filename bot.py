@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-KrdDown Telegram Bot - 24/7 Online
-Developed by Zaniyar Al-Mzuri Al-Kurdi
+KrdDown Telegram Bot - Fully Ready
+Token embedded - Ready to deploy
 GitHub: https://github.com/zaniyar/krddown
 """
 
@@ -11,33 +11,52 @@ import re
 import json
 import time
 import logging
+import sys
 import asyncio
 import aiohttp
 from datetime import datetime
 from urllib.parse import quote
 
 # Telegram Bot
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
 from telegram.constants import ParseMode
 
-# ===== Configuration =====
-# Replace with your bot token from @BotFather
+# ===== CONFIGURATION =====
+# Bot Token - Directly set (change this after deploy for security)
 BOT_TOKEN = "8241969791:AAFk0huUXrMTccIDY33p1sx1ioXQ8hMk92k"
 
-# Webhook URL for production (leave empty for polling mode)
-WEBHOOK_URL = os.environ.get('WEBHOOK_URL', '')
+# Railway automatically provides PORT
 PORT = int(os.environ.get('PORT', 8080))
+
+# Railway Public URL (auto-detected)
+RAILWAY_URL = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
+if RAILWAY_URL and not RAILWAY_URL.startswith('http'):
+    RAILWAY_URL = f'https://{RAILWAY_URL}'
+
+WEBHOOK_URL = os.environ.get('WEBHOOK_URL', RAILWAY_URL)
 
 # ===== Logging =====
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    stream=sys.stdout
 )
 logger = logging.getLogger(__name__)
 
-# ===== Bot Configuration =====
-BOT_NAME = "KrdDown Downloader"
+# ===== Validate Token =====
+if not BOT_TOKEN or BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
+    logger.error("❌ BOT_TOKEN is not set!")
+    sys.exit(1)
+
+logger.info("=" * 60)
+logger.info("🤖 KrdDown Bot Starting...")
+logger.info(f"🔑 Token: {BOT_TOKEN[:10]}...{BOT_TOKEN[-5:]}")
+logger.info(f"📱 Port: {PORT}")
+logger.info(f"🌐 Webhook URL: {WEBHOOK_URL or 'Polling Mode'}")
+logger.info("=" * 60)
+
+# ===== Bot Constants =====
 BOT_USERNAME = "@KrdDownBot"
 WEBSITE_URL = "https://krddown.vercel.app"
 ADMIN_URL = "https://krddown.vercel.app/admin.html"
@@ -67,12 +86,12 @@ PLATFORMS = {
     'twitch.tv': {'name': 'Twitch', 'icon': '🎮', 'api': 'cobalt', 'color': '#9146ff'},
 }
 
-# ===== User Statistics =====
-user_stats = {}
+# ===== Global Stats =====
 total_downloads = 0
 platform_stats = {}
+user_stats = {}
 
-# ===== API Functions =====
+# ===== DOWNLOAD FUNCTIONS =====
 async def download_tiktok(url):
     """Download TikTok video using tikwm API"""
     try:
@@ -90,7 +109,7 @@ async def download_tiktok(url):
                         'platform': 'TikTok',
                         'author': video_data.get('author', {}).get('nickname', 'Unknown'),
                         'title': video_data.get('title', 'No Title'),
-                        'video_url': video_data.get('play'),
+                        'video_url': video_data.get('play') or video_data.get('hdplay'),
                         'audio_url': video_data.get('music'),
                         'images': video_data.get('images', []),
                         'cover': video_data.get('cover'),
@@ -107,6 +126,7 @@ async def download_tiktok(url):
     except Exception as e:
         logger.error(f"TikTok download error: {e}")
         return {'success': False, 'error': str(e)}
+
 
 async def download_cobalt(url):
     """Download using Cobalt API (Universal)"""
@@ -160,6 +180,7 @@ async def download_cobalt(url):
         logger.error(f"Cobalt download error: {e}")
         return {'success': False, 'error': str(e)}
 
+
 def detect_platform(url):
     """Detect platform from URL"""
     url_lower = url.lower()
@@ -170,12 +191,13 @@ def detect_platform(url):
     
     return {'name': 'Unknown', 'icon': '🔗', 'api': 'cobalt', 'color': '#ffffff'}
 
+
 async def download_media(url):
     """Smart download - auto detect platform and download"""
     global total_downloads, platform_stats
     
     platform = detect_platform(url)
-    logger.info(f"Downloading from {platform['name']}: {url[:80]}...")
+    logger.info(f"📥 Downloading from {platform['name']}: {url[:80]}...")
     
     if platform['api'] == 'tikwm':
         result = await download_tiktok(url)
@@ -190,12 +212,15 @@ async def download_media(url):
         # Update stats
         total_downloads += 1
         platform_stats[platform['name']] = platform_stats.get(platform['name'], 0) + 1
+        
+        logger.info(f"✅ Download successful: {platform['name']}")
     
     return result
 
-# ===== Telegram Handlers =====
+
+# ===== BOT HANDLERS =====
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Send welcome message when /start is issued"""
+    """Send welcome message"""
     user = update.effective_user
     user_id = str(user.id)
     
@@ -209,7 +234,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
     
     welcome_text = f"""
-<b>🎉 بەخێربێیت بۆ {BOT_NAME}!</b>
+<b>🎉 بەخێربێیت بۆ KrdDown Bot!</b>
 
 <b>{user.first_name}</b>ی بەڕێز،
 ئەم بۆتە دەتوانێت ڤیدیۆ لە زیاتر لە <b>20+ پلاتفۆرم</b> داونلۆد بکات!
@@ -224,7 +249,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 • 🐦 Twitter/X
 • 🤖 Reddit
 • 🎬 Vimeo
-• 📺 Dailymotion
 • 🎮 Twitch
 
 <b>🛠 چۆنیەتی بەکارهێنان:</b>
@@ -243,16 +267,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ],
         [
             InlineKeyboardButton("💎 پشتگیری", url=DONATE_URL),
-            InlineKeyboardButton("📊 ئاماری من", callback_data="mystats")
+            InlineKeyboardButton("📊 ئامارەکان", callback_data="stats")
         ],
         [
             InlineKeyboardButton("📢 هاوبەشکردن", switch_inline_query=""),
-            InlineKeyboardButton("📖 ڕێبەر", callback_data="guide")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    # Send welcome photo if available
     try:
         await update.message.reply_photo(
             photo="https://krddown.vercel.app/icon.png",
@@ -268,12 +290,13 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             disable_web_page_preview=True
         )
 
+
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send help message"""
     help_text = f"""
-<b>📚 ڕێبەری بەکارهێنانی {BOT_NAME}</b>
+<b>📚 ڕێبەری بەکارهێنانی KrdDown Bot</b>
 
-<b>1️⃣ داونلۆدی ڤیدیۆ (سادەترین ڕێگە):</b>
+<b>1️⃣ داونلۆدی ڤیدیۆ:</b>
 تەنها لینکی ڤیدیۆکە بنێرە
 
 <b>2️⃣ داونلۆدی بێ واتەرمارک:</b>
@@ -282,42 +305,38 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 <b>3️⃣ کوالێتی بەرز:</b>
 پشتگیری HD, Full HD, 4K
 
-<b>4️⃣ داونلۆدی وێنەکان:</b>
-بۆ پۆستی وێنەیی، هەموو وێنەکان یەکسەر دەنێردرێن
-
 <b>💡 فەرمانەکان:</b>
 /start - دەستپێکردنەوە
 /help - یارمەتی
-/stats - ئامارەکانی بۆت
+/stats - ئامارەکان
 /about - دەربارەی بۆت
 /donate - پشتگیری
-/website - وێبسایت
 
 <b>⚠️ تێبینی:</b>
 بۆ ڤیدیۆی گەورە، چاوەڕێ بە!
 """
     await update.message.reply_text(help_text, parse_mode=ParseMode.HTML)
 
+
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show bot statistics"""
     users_count = len(user_stats)
     
     stats_text = f"""
-<b>📊 ئاماری {BOT_NAME}</b>
+<b>📊 ئاماری KrdDown Bot</b>
 
 • 🟢 <b>ڕەوش:</b> Online 24/7
 • 👥 <b>بەکارهێنەران:</b> {users_count}
 • 📥 <b>کۆی داونلۆدەکان:</b> {total_downloads}
-• ⚡ <b>خێرایی:</b> High Speed
 • 🌐 <b>پلاتفۆرم:</b> 20+
 • 💎 <b>کوالێتی:</b> Up to 4K
-• 🔒 <b>ئاسایش:</b> Encrypted
+• ⚡ <b>خێرایی:</b> High Speed
 
 ━━━━━━━━━━━━━━━━━━
-<b>📈 داونلۆدەکان بەپێی پلاتفۆرم:</b>
 """
     
     if platform_stats:
+        stats_text += "<b>📈 داونلۆدەکان بەپێی پلاتفۆرم:</b>"
         sorted_platforms = sorted(platform_stats.items(), key=lambda x: x[1], reverse=True)
         for platform, count in sorted_platforms[:10]:
             icon = next((v['icon'] for v in PLATFORMS.values() if v['name'] == platform), '📹')
@@ -327,19 +346,18 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     stats_text += f"""
 ━━━━━━━━━━━━━━━━━━
-<b>تایبەتمەندییەکان:</b>
 ✅ داونلۆدی بێ واتەرمارک
 ✅ پشتگیری 20+ پلاتفۆرم
 ✅ کوالێتی HD/4K
-✅ داونلۆدی خێرا
 ✅ 24/7 ئۆنلاین
 """
     await update.message.reply_text(stats_text, parse_mode=ParseMode.HTML)
 
+
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """About the bot"""
     about_text = f"""
-<b>🚀 دەربارەی {BOT_NAME}</b>
+<b>🚀 دەربارەی KrdDown Bot</b>
 
 ئەم بۆتە لە لایەن <b>Zaniyar Al-Mzuri</b> گەشەپێدراوە.
 ئامانجی ئەم پلاتفۆرمە پێشکەشکردنی خزمەتگوزارییەکی خێرا و بێبەرامبەرە بۆ داونلۆدی ڤیدیۆ.
@@ -358,19 +376,6 @@ async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """
     await update.message.reply_text(about_text, parse_mode=ParseMode.HTML)
 
-async def website_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Send website link"""
-    keyboard = [[InlineKeyboardButton("🌐 بکەرەوەی وێبسایت", url=WEBSITE_URL)]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(
-        f"🌐 <b>وێبسایتی KrdDown</b>\n\n"
-        f"بۆ داونلۆدی ڤیدیۆ بە کوالێتی بەرزتر و ئەزموونێکی باشتر، "
-        f"سەردانی وێبسایتەکەمان بکە:\n\n"
-        f"🔗 {WEBSITE_URL}",
-        parse_mode=ParseMode.HTML,
-        reply_markup=reply_markup
-    )
 
 async def donate_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Donation information"""
@@ -396,6 +401,7 @@ https://paypal.me/zaniyar
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(donate_text, parse_mode=ParseMode.HTML, reply_markup=reply_markup)
 
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle incoming messages - detect URL and download"""
     message = update.message
@@ -418,7 +424,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     urls = re.findall(url_pattern, text)
     
     if not urls:
-        # No URL found - send help
         await message.reply_text(
             "⚠️ <b>تکایە لینکی ڤیدیۆکە بنێرە!</b>\n\n"
             "بۆ نمونە:\n"
@@ -430,7 +435,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     
-    # Process URL
+    # Process first URL
     url = urls[0]
     platform = detect_platform(url)
     
@@ -469,7 +474,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if result.get('likes'):
                     caption += f"\n❤️ <b>لایک:</b> {result['likes']:,}"
                 
-                caption += f"\n\n⚡ <b>داونلۆد کرا لە:</b> {BOT_USERNAME}"
+                caption += f"\n\n⚡ <b>داونلۆد کرا لە:</b> @KrdDownBot"
                 caption += f"\n🌐 <b>وێبسایت:</b> {WEBSITE_URL}"
                 
                 # Try to send as video
@@ -482,8 +487,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         reply_to_message_id=message.message_id
                     )
                     await processing_msg.delete()
-                    
-                    logger.info(f"✅ Download sent: {platform['name']} for @{user.username or user_id}")
+                    logger.info(f"✅ Video sent: {platform['name']} for @{user.username or user_id}")
                     
                 except Exception as e:
                     logger.warning(f"Cannot send video directly: {e}")
@@ -515,7 +519,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if result.get('author'):
                     caption += f"\n👤 <b>بەکارهێنەر:</b> {result['author']}"
                 caption += f"\n🖼 <b>ژمارەی وێنەکان:</b> {len(images)}"
-                caption += f"\n\n⚡ <b>{BOT_USERNAME}</b>"
+                caption += f"\n\n⚡ <b>@KrdDownBot</b>"
                 
                 if len(images) == 1:
                     await message.reply_photo(
@@ -525,7 +529,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         reply_to_message_id=message.message_id
                     )
                 else:
-                    # Send as album
                     media_group = []
                     for i, img_url in enumerate(images):
                         if i == 0:
@@ -566,80 +569,61 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode=ParseMode.HTML
         )
 
+
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle button clicks"""
     query = update.callback_query
     await query.answer()
     
-    user_id = str(query.from_user.id)
-    
-    if query.data == "mystats":
-        downloads = user_stats.get(user_id, {}).get('downloads', 0)
-        await query.message.reply_text(
-            f"📊 <b>ئاماری تۆ</b>\n\n"
-            f"👤 <b>ناو:</b> {query.from_user.first_name}\n"
-            f"📥 <b>داونلۆدەکان:</b> {downloads}\n"
-            f"📅 <b>یەکەم سەردان:</b> {user_stats.get(user_id, {}).get('first_seen', 'نەزانراو')[:10]}\n\n"
-            f"⚡ <b>{BOT_USERNAME}</b>",
-            parse_mode=ParseMode.HTML
-        )
-    
-    elif query.data == "guide":
-        await help_command(update, context)
+    if query.data == "stats":
+        await stats_command(update, context)
+
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle errors"""
     logger.error(f"Update {update} caused error {context.error}")
-    
-    try:
-        if update and update.effective_message:
-            await update.effective_message.reply_text(
-                "❌ کێشەیەکی تەکنیکی ڕوویدا.\n"
-                "تکایە دواتر هەوڵبدەرەوە."
-            )
-    except:
-        pass
 
-# ===== Health Check Endpoint =====
+
+# ===== HEALTH CHECK SERVER =====
 from aiohttp import web
 
 async def health_check(request):
-    """Health check endpoint for monitoring"""
+    """Health check endpoint"""
     return web.Response(
         text=json.dumps({
             'status': 'ok',
-            'bot': BOT_USERNAME,
-            'uptime': '24/7',
+            'bot': '@KrdDownBot',
+            'downloads': total_downloads,
             'users': len(user_stats),
-            'downloads': total_downloads
+            'platforms': len(PLATFORMS),
+            'uptime': '24/7'
         }),
-        content_type='application/json'
+        content_type='application/json',
+        status=200
     )
 
 async def start_web_server():
-    """Start aiohttp web server for health checks"""
+    """Start health check server"""
     app = web.Application()
-    app.router.add_get('/health', health_check)
     app.router.add_get('/', health_check)
+    app.router.add_get('/health', health_check)
     
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, '0.0.0.0', PORT)
     await site.start()
-    logger.info(f"Health check server running on port {PORT}")
+    logger.info(f"✅ Health check server running on port {PORT}")
 
-# ===== Main Application =====
+
+# ===== MAIN =====
 def main():
     """Start the bot"""
-    logger.info(f"🤖 Starting {BOT_NAME}...")
-    logger.info(f"👤 Bot: {BOT_USERNAME}")
-    logger.info(f"🌐 Website: {WEBSITE_URL}")
-    logger.info("=" * 50)
-    
-    # Validate token
-    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE" or not BOT_TOKEN:
-        logger.error("❌ BOT_TOKEN is not set! Please set your bot token.")
-        return
+    logger.info("=" * 60)
+    logger.info("🤖 KrdDown Bot Starting...")
+    logger.info(f"🔑 Token: {BOT_TOKEN[:10]}...{BOT_TOKEN[-5:]}")
+    logger.info(f"📱 Port: {PORT}")
+    logger.info(f"🌐 Webhook URL: {WEBHOOK_URL or 'Polling Mode'}")
+    logger.info("=" * 60)
     
     # Create application
     application = Application.builder().token(BOT_TOKEN).build()
@@ -650,9 +634,8 @@ def main():
     application.add_handler(CommandHandler("stats", stats_command))
     application.add_handler(CommandHandler("about", about_command))
     application.add_handler(CommandHandler("donate", donate_command))
-    application.add_handler(CommandHandler("website", website_command))
     
-    # Add message handler for URLs
+    # Add message handler
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     # Add callback handler
@@ -661,24 +644,13 @@ def main():
     # Add error handler
     application.add_error_handler(error_handler)
     
-    # Set bot commands
-    commands = [
-        BotCommand("start", "🚀 دەستپێکردن"),
-        BotCommand("help", "📋 یارمەتی"),
-        BotCommand("stats", "📊 ئامارەکان"),
-        BotCommand("about", "ℹ️ دەربارە"),
-        BotCommand("donate", "💎 پشتگیری"),
-        BotCommand("website", "🌐 وێبسایت"),
-    ]
-    
     # Start health check server
     loop = asyncio.get_event_loop()
     loop.create_task(start_web_server())
     
     # Start bot
-    if WEBHOOK_URL and 'railway' in WEBHOOK_URL.lower():
-        # Webhook mode (production)
-        logger.info(f"🌐 Starting webhook mode: {WEBHOOK_URL}")
+    if WEBHOOK_URL:
+        logger.info(f"📡 Starting Webhook mode: {WEBHOOK_URL}")
         application.run_webhook(
             listen="0.0.0.0",
             port=PORT,
@@ -686,10 +658,16 @@ def main():
             webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
         )
     else:
-        # Polling mode (development)
-        logger.info("📡 Starting polling mode...")
+        logger.info("📡 Starting Polling mode...")
         logger.info("✅ Bot is ready! Send /start to @KrdDownBot")
         application.run_polling(allowed_updates=Update.ALL_TYPES)
 
+
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.info("👋 Bot stopped by user")
+    except Exception as e:
+        logger.error(f"💥 Fatal error: {e}")
+        sys.exit(1)
