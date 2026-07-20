@@ -1,8 +1,9 @@
-// KrdDown - Updated Main App Logic (app.js)
-// Version: 2.0 - All Features Integrated
+// ============================================
+// KrdDown - Main Application Logic
+// Compatible with original design
+// ============================================
 
-// ===== Global State =====
-let currentLang = getCurrentLang();
+let currentLang = localStorage.getItem('tikjet_lang') || '';
 let currentMode = 'link';
 let albumImages = [];
 let searchHistory = JSON.parse(localStorage.getItem('tikjet_history') || '[]');
@@ -11,128 +12,308 @@ let deferredPrompt;
 let activeGalleryList = [];
 let activeGalleryIndex = 0;
 
-// ===== Initialize Everything =====
+// ===== Language Data =====
+const langData = {
+    badini: {
+        title: 'دابەزاندنا ڤیدیۆ و ستۆریێن تۆڕێن جڤاکی بێ لۆگۆ',
+        placeholder: 'لینکی ڤیدیۆیێ لڤێرە دانێ...', placeholderUser: 'ناڤێ حسابێ بنڤیسە...',
+        paste: 'پێوەکە', download: 'دابەزینە', quickQ: 'دێ چەوا میدیا دابەزێنم？',
+        guideT: 'ڕێبەرێ دابەزاندنێ یێ بلەز', rateText: 'نرخاندنا مالپەری بکە',
+        faqHead: 'پرسیارێن بەربڵاو (FAQs)', thanks: 'سوپاس بۆ دەنگدان و پشتەڤانیا تە! 🌟',
+        followers: 'فۆڵۆوێرس', hearts: 'لایکەکان', album: 'ئەلبومێن وێنەیان', history: 'دوایین لێگەرینەکان',
+        visitSponsor: 'سەردان بکە', copyText: 'کۆپی بکە', copiedText: 'کۆپی بوو! ✅', supportTitle: 'پشتەڤانیا تە بومن 💎',
+        trendingTitle: 'ڤیدیۆیێن ترێند یێن کوردی (Trending Reels)', shareTitle: 'لینکێ سایتێ مە بەڵاڤ بکە دگەل هەڤالێن خۆ:',
+        pwaDesc: 'داخستن و جێگیرکرنا مالپەری وەک ئەپلیکەسیۆن ل سەر شاشێ.', pwaLater: 'پاشان', pwaInstall: 'جێگیرکە',
+        iosTitle: 'KrdDown دابەزێنە وەک ئەپ', iosSubtitle: 'تایبەت بۆ سیستەمێ iOS / iPhone',
+        iosStep1: 'ل خوارێ کلیک ل سەر دوگمەیا بارکردنێ Share بکە.', iosStep2: 'پاشان کلیک ل سەر Add to Home Screen بکە.', iosStep3: 'ل لایێ ڕاست کلیک ل سەر Add بکە.', iosThanks: 'سۆپاس، تێگەهشتم',
+        qualitySel: 'کواڵیتیا دابەزاندنێ هەلبژێرە:', quickDl: 'داونلۆدا بلەز', audioDl: 'MP3 دەنگ', dlAll: 'هەمی دابەزینە',
+        clearHistory: 'پاککرنەوە', promoBtn: '🚀 خەڵات و دیاریێن ئەڤڕۆ (کلیک بکە)',
+        faqQ1: 'ئەرێ دابەزاندنا ڤیدیۆیان پارەیە؟', faqA1: 'نەخێر، خزمەتگوزاریا KrdDown ب تەمامی بێبەرامبەرە و تو دشێی بێ سنوور ڤیدیۆیان دابەزینی.',
+        footer: '© 2026 KrdDown. گەشەپێدەر زانیار المزوري الکوردی، هەموو مافەکان پارێزراون.',
+        themeDark: 'مۆدی تاریك', themeLight: 'مۆدی ڕووناك'
+    },
+    sorani: {
+        title: 'داگرتنی ڤیدیۆ و ستۆرییەکانی تۆڕە جڤاکیەکان بێ لۆگۆ',
+        placeholder: 'لینکی ڤیدیۆکە لێرە دابنێ...', placeholderUser: 'ناوی ئەکاونتەکە بنووسە...',
+        paste: 'پەیست بکە', download: 'دایبەزێنە', quickQ: 'چۆن میدیا دابگرم؟',
+        guideT: 'ڕێبەری خێرای داگرتن', rateText: 'نرخاندنی ماڵپەڕەکە بکە',
+        faqHead: 'پرسیارە باوەکان (FAQs)', thanks: 'سوپاس بۆ دەنگدانەکەت! 🌟',
+        followers: 'فۆڵۆوێرس', hearts: 'لایکەکان', album: 'ئەلبومی وێنەکان', history: 'دوایین گەڕانەکان',
+        visitSponsor: 'سەردان بکە', copyText: 'کۆپی بکە', copiedText: 'کۆپی بوو! ✅', supportTitle: 'پشتگیری تۆ بۆ من 💎',
+        trendingTitle: 'ڤیدیۆ ترێندە کوردییەکان (Trending Reels)', shareTitle: 'لینکی ماڵپەڕەکەمان بڵاو بکەرەوە لەگەڵ هاوڕێکانت:',
+        pwaDesc: 'داگرتن و جێگیرکردنی ماڵپەڕەکە وەک ئەپ بۆ سەر شاشەی سەرەکی.', pwaLater: 'پاشان', pwaInstall: 'جێگیرکە',
+        iosTitle: 'KrdDown داگرە وەک ئەپ', iosSubtitle: 'تایبەت بۆ سیستەمی iOS / iPhone',
+        iosStep1: 'لە خوارەوە کلیک لەسەر دوگمەی Share بکە.', iosStep2: 'پاشان کلیک لەسەر Add to Home Screen بکە.', iosStep3: 'لە لای ڕاست کلیک لەسەر Add بکە.', iosThanks: 'سوپاس، تێگەیشتم',
+        qualitySel: 'کوالێتی داگرتن هەڵبژێرە:', quickDl: 'داگرتنی خێرا', audioDl: 'دەنگی MP3', dlAll: 'هەموو دابەزێنە',
+        clearHistory: 'پاککردنەوە', promoBtn: '🚀 خەڵات و دیارییەکانی ئەمڕۆ (کلیک بکە)',
+        faqQ1: 'ئایا داگرتنی ڤیدیۆکان پارەیە؟', faqA1: 'نەخێر، خزمەتگوزاری KrdDown بە تەواوی بێبەرامبەرە و تۆ دەتوانیت بێ سنوور ڤیدیۆکان دابگریت.',
+        footer: '© 2026 KrdDown. گەشەپێدەر زانیار المزوري الکوردی، هەموو مافەکان پارێزراون.',
+        themeDark: 'مۆدی تاریک', themeLight: 'مۆدی ڕووناک'
+    },
+    ar: {
+        title: 'تحميل فيديوهات وقصص منصات التواصل بدون علامة مائية',
+        placeholder: 'ضع رابط الفيديو هنا...', placeholderUser: 'أدخل اسم المستخدم...',
+        paste: 'لصق', download: 'تحميل', quickQ: 'كيف يمكنني تحميل الميديا؟',
+        guideT: 'دليل التحميل السريع', rateText: 'قيّم موقعنا',
+        faqHead: 'الأسئلة الشائعة (FAQs)', thanks: 'شكراً لتقييمك ودعمك! 🌟',
+        followers: 'متابعين', hearts: 'إعجابات', album: 'ألبوم الصور', history: 'آخر عمليات البحث',
+        visitSponsor: 'زيارة الحساب', copyText: 'نسخ', copiedText: 'تم النسخ! ✅', supportTitle: 'دعمك لي 💎',
+        trendingTitle: 'الفيديوهات الكردية الرائجة (Trending Reels)', shareTitle: 'شارك رابط موقعنا مع أصدقائك:',
+        pwaDesc: 'تثبيت وتحميل الموقع كتطبيق مباشر على شاشة هاتفك.', pwaLater: 'لاحقاً', pwaInstall: 'تثبيت',
+        iosTitle: 'تحميل KrdDown كتطبيق', iosSubtitle: 'مخصص لأنظمة iOS / iPhone',
+        iosStep1: 'في الأسفل انقر على زر المشاركة Share.', iosStep2: 'ثم اختر إضافة إلى الشاشة الرئيسية Add to Home Screen.', iosStep3: 'في الأعلى انقر على إضافة Add.', iosThanks: 'شكراً، فهمت',
+        qualitySel: 'اختر جودة التحميل:', quickDl: 'تحميل سريع', audioDl: 'صوت MP3', dlAll: 'تحميل الكل',
+        clearHistory: 'مسح السجل', promoBtn: '🚀 جوائز وهدايا اليوم (اضغط هنا)',
+        faqQ1: 'هل تحميل الفيديوهات مدفوع؟', faqA1: 'لا، خدمة KrdDown مجانية تماماً ويمكنك تحميل الفيديوهات بلا حدود.',
+        footer: '© 2026 KrdDown. المطور زانيار المزوري الكردي، جميع الحقوق محفوظة.',
+        themeDark: 'الوضع الداكن', themeLight: 'الوضع الفاتح'
+    },
+    en: {
+        title: 'Download Social Media Videos & Stories Without Watermark',
+        placeholder: 'Paste video link here...', placeholderUser: 'Enter username...',
+        paste: 'Paste', download: 'Download', quickQ: 'How to download media?',
+        guideT: 'Quick Download Guide', rateText: 'Rate our website',
+        faqHead: 'Frequently Asked Questions', thanks: 'Thanks for your rating and support! 🌟',
+        followers: 'Followers', hearts: 'Likes', album: 'Photo Album', history: 'Recent Searches',
+        visitSponsor: 'Visit Profile', copyText: 'Copy', copiedText: 'Copied! ✅', supportTitle: 'Your Support Me 💎',
+        trendingTitle: 'Trending Kurdish Videos (Reels)', shareTitle: 'Share our website link with your friends:',
+        pwaDesc: 'Install and add this website as an app on your home screen.', pwaLater: 'Later', pwaInstall: 'Install',
+        iosTitle: 'Download KrdDown as App', iosSubtitle: 'Exclusive for iOS / iPhone devices',
+        iosStep1: 'At the bottom, click on the Share button.', iosStep2: 'Then scroll down and click Add to Home Screen.', iosStep3: 'At the top right, click on Add.', iosThanks: 'Thanks, I got it',
+        qualitySel: 'Select Download Quality:', quickDl: 'Quick Download', audioDl: 'MP3 Audio', dlAll: 'Download All',
+        clearHistory: 'Clear History', promoBtn: "🚀 Today's Rewards & Gifts (Click Here)",
+        faqQ1: 'Is downloading videos free?', faqA1: 'KrdDown service is completely free and you can download videos without any limitations.',
+        footer: '© 2026 KrdDown. Developed by Zanyar Al-Mzuri Al-Kurdi, All Rights Reserved.',
+        themeDark: 'Dark Mode', themeLight: 'Light Mode'
+    }
+};
+
+// ===== DOM Ready =====
 window.addEventListener('DOMContentLoaded', () => {
     // Show welcome modal
     setTimeout(() => {
-        document.getElementById('welcomeModal')?.classList.add('show');
+        const modal = document.getElementById('welcomeModal');
+        if (modal) modal.classList.add('show');
     }, 600);
-    
+
     // Initialize language
+    if (!currentLang) {
+        let browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
+        if (browserLang.startsWith('ar')) currentLang = 'ar';
+        else if (browserLang.startsWith('en')) currentLang = 'en';
+        else currentLang = 'badini';
+    }
     changeLanguage(currentLang);
     const langSelect = document.getElementById('langSelect');
     if (langSelect) langSelect.value = currentLang;
-    
+
     // Render history
     renderHistory();
-    
-    // Apply stored theme
-    applyStoredTheme();
-    
-    // Initialize all systems
-    if (typeof BatchDownload !== 'undefined') BatchDownload.init();
-    if (typeof Analytics !== 'undefined') Analytics.init();
-    if (typeof ReferralSystem !== 'undefined') ReferralSystem.init();
-    if (typeof ExtendedPlatforms !== 'undefined') ExtendedPlatforms.createPlatformShowcase();
+
+    // Apply theme
+    if (localStorage.getItem('tikjet_theme') === 'light') {
+        document.body.classList.add('light-mode');
+        const icon = document.getElementById('themeIcon');
+        if (icon) icon.className = 'fa-solid fa-sun';
+        const txt = document.getElementById('txtTheme');
+        if (txt) txt.textContent = 'مۆدی ڕووناك';
+    }
+
+    // Initialize additional features if available
+    if (typeof SmartDetect !== 'undefined') {
+        // Smart detect is auto-initialized
+    }
+    if (typeof BatchDownload !== 'undefined') {
+        setTimeout(() => BatchDownload.init(), 1000);
+    }
+    if (typeof Analytics !== 'undefined') {
+        Analytics.init();
+    }
+    if (typeof ReferralSystem !== 'undefined') {
+        ReferralSystem.init();
+    }
+    if (typeof ExtendedPlatforms !== 'undefined') {
+        ExtendedPlatforms.createPlatformShowcase();
+    }
     if (typeof UI !== 'undefined') {
         UI.initScrollAnimations();
-        UI.initParallax();
     }
-    
-    // Load trending videos
-    setTimeout(loadTrendingSection, 1500);
+
+    // Check iOS PWA
+    checkIOSPWA();
 });
 
-// ===== Theme Management =====
+// ===== Welcome Modal =====
+function selectNetwork(name, gradient) {
+    const modal = document.getElementById('welcomeModal');
+    if (modal) modal.classList.remove('show');
+    const btn = document.getElementById('btnDownload');
+    if (btn) btn.style.background = gradient;
+    toast('تۆڕێ ' + name + ' هاتە هەڵبژاردن! 🚀', 'fa-circle-check');
+}
+
+// ===== Contact Modal =====
+function openContactModal() {
+    const modal = document.getElementById('contactModal');
+    if (modal) modal.classList.add('show');
+}
+
+function closeContactModal(e) {
+    if (e.target.id === 'contactModal') {
+        const modal = document.getElementById('contactModal');
+        if (modal) modal.classList.remove('show');
+    }
+}
+
+// ===== PWA Functions =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!sessionStorage.getItem('pwa_dismissed') && !isIosDevice()) {
+        setTimeout(() => {
+            const banner = document.getElementById('pwaBanner');
+            if (banner) banner.classList.add('show');
+        }, 3000);
+    }
+});
+
+function installPwa() {
+    if (!deferredPrompt) return;
+    const banner = document.getElementById('pwaBanner');
+    if (banner) banner.classList.remove('show');
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+}
+
+function dismissPwa() {
+    const banner = document.getElementById('pwaBanner');
+    if (banner) banner.classList.remove('show');
+    sessionStorage.setItem('pwa_dismissed', 'true');
+}
+
+function isIosDevice() {
+    return ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform)
+        || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+}
+
+function checkIOSPWA() {
+    if (isIosDevice() && !(('standalone' in window.navigator) && window.navigator.standalone)) {
+        if (!sessionStorage.getItem('ios_pwa_dismissed')) {
+            setTimeout(() => {
+                const banner = document.getElementById('iosPwaBanner');
+                if (banner) banner.classList.remove('hidden');
+            }, 2500);
+        }
+    }
+}
+
+function dismissIosBanner() {
+    const banner = document.getElementById('iosPwaBanner');
+    if (banner) banner.classList.add('hidden');
+    sessionStorage.setItem('ios_pwa_dismissed', 'true');
+}
+
+// ===== Auto-paste from clipboard =====
+window.addEventListener('focus', () => {
+    if (navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
+        navigator.clipboard.readText().then(text => {
+            const input = document.getElementById('tiktokUrl');
+            if (text && (text.includes('tiktok.com') || text.includes('instagram.com') || 
+                text.includes('facebook.com') || text.includes('pinterest.com') || 
+                text.includes('snapchat.com') || text.includes('youtube.com') || 
+                text.includes('youtu.be')) && input && input.value === '') {
+                input.value = text;
+                toast('لینکێ خۆکارانە پەیست بوو! 📋', 'fa-paste');
+            }
+        }).catch(() => {});
+    }
+});
+
+// ===== Copy Functions =====
+function copyCaptionText() {
+    const desc = document.getElementById('previewDescription');
+    if (!desc || !desc.textContent.trim()) return toast('چ دەق لڤێرە نینە!', 'fa-exclamation-triangle');
+    navigator.clipboard.writeText(desc.textContent).then(() => {
+        toast('وەسف هاتە کۆپیکردن! 📋', 'fa-copy');
+        const btnSpan = document.getElementById('txtCopyCap');
+        if (btnSpan) {
+            btnSpan.textContent = 'کۆپی بوو! ✅';
+            setTimeout(() => { btnSpan.textContent = 'کۆپی بکە'; }, 2000);
+        }
+    });
+}
+
+function copyGalleryCaption() {
+    const desc = document.getElementById('galleryPopupDesc');
+    if (!desc || !desc.textContent || desc.textContent.startsWith("دهێتە")) return toast('چ دەق نینە!', 'fa-exclamation-triangle');
+    navigator.clipboard.writeText(desc.textContent).then(() => {
+        toast('دەق هاتە کۆپیکردن! 📋', 'fa-copy');
+    });
+}
+
+// ===== Share Functions =====
+function shareToSnapchat() {
+    window.open('https://www.snapchat.com/scan?attachmentUrl=' + encodeURIComponent(window.location.href), '_blank');
+    toast('ڕەوانەی سناپچاتێ بوو! 💛', 'fa-snapchat');
+}
+
+function shareToTelegram() {
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent("باشترین سایت بۆ دابەزاندنا ڤیدیۆیان! 🚀"), '_blank');
+    toast('ڕەوانەی تێلێگرامێ بوو! 💙', 'fa-telegram');
+}
+
+// ===== Trending =====
+function loadTrendingVideo(url) {
+    switchMode('link');
+    const input = document.getElementById('tiktokUrl');
+    if (input) input.value = url;
+    toast('ڤیدیۆیا ترێند هاتە جێگیرکرن!', 'fa-fire');
+    const el = document.getElementById('tiktokUrl');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== Theme =====
 function toggleTheme() {
     const body = document.body;
     body.classList.toggle('light-mode');
     const isLight = body.classList.contains('light-mode');
     localStorage.setItem('tikjet_theme', isLight ? 'light' : 'dark');
-    document.getElementById('themeIcon').className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    const l = langData[currentLang] || langData['badini'];
-    document.getElementById('txtTheme').textContent = isLight ? l.themeLight : l.themeDark;
-}
-
-function applyStoredTheme() {
-    const theme = localStorage.getItem('tikjet_theme') || 'dark';
-    const body = document.body;
-    const l = langData[currentLang] || langData['badini'];
-    
-    body.classList.remove('light-mode', 'oled-mode', 'sepia-mode');
-    
-    switch(theme) {
-        case 'light':
-            body.classList.add('light-mode');
-            document.getElementById('themeIcon').className = 'fa-solid fa-sun';
-            document.getElementById('txtTheme').textContent = l.themeLight;
-            break;
-        case 'oled':
-            body.classList.add('oled-mode');
-            document.getElementById('themeIcon').className = 'fa-solid fa-circle';
-            document.getElementById('txtTheme').textContent = 'OLED';
-            break;
-        case 'sepia':
-            body.classList.add('sepia-mode');
-            document.getElementById('themeIcon').className = 'fa-solid fa-book';
-            document.getElementById('txtTheme').textContent = 'Sepia';
-            break;
-        default:
-            document.getElementById('themeIcon').className = 'fa-solid fa-moon';
-            document.getElementById('txtTheme').textContent = l.themeDark;
-    }
-}
-
-// ===== Welcome Modal =====
-function selectNetwork(name, gradient) {
-    document.getElementById('welcomeModal')?.classList.remove('show');
-    const downloadBtn = document.getElementById('btnDownload');
-    if (downloadBtn) downloadBtn.style.background = gradient;
-    toast(`تۆڕێ ${name} هاتە هەڵبژاردن! 🚀`, 'fa-circle-check');
-}
-
-// ===== Contact Modal =====
-function openContactModal() {
-    document.getElementById('contactModal')?.classList.add('show');
-}
-
-function closeContactModal(e) {
-    if(e.target.id === 'contactModal') {
-        document.getElementById('contactModal')?.classList.remove('show');
-    }
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    const txt = document.getElementById('txtTheme');
+    if (txt) txt.textContent = isLight ? 'مۆدی ڕووناك' : 'مۆدی تاریك';
 }
 
 // ===== Quick Guide =====
-function toggleQuickGuide() { 
-    document.getElementById('quickGuideBox')?.classList.toggle('hidden'); 
+function toggleQuickGuide() {
+    const guide = document.getElementById('quickGuideBox');
+    if (guide) guide.classList.toggle('hidden');
 }
 
 // ===== FAQ =====
 function toggleFaq(btn) {
     const content = btn.nextElementSibling;
     const icon = btn.querySelector('i');
-    if (content.style.maxHeight) { 
-        content.style.maxHeight = null; 
-        icon.className = "fa-solid fa-chevron-down text-xs text-slate-500"; 
-    } else { 
-        content.style.maxHeight = content.scrollHeight + "px"; 
-        icon.className = "fa-solid fa-chevron-up text-xs text-pink-500"; 
+    if (content.style.maxHeight) {
+        content.style.maxHeight = null;
+        icon.className = "fa-solid fa-chevron-down text-xs text-slate-500";
+    } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+        icon.className = "fa-solid fa-chevron-up text-xs text-pink-500";
     }
 }
 
 // ===== Rating =====
-function submitRate(val) { 
+function submitRate(val) {
     const thanks = document.getElementById('rateThanks');
-    if (thanks) {
-        thanks.classList.remove('hidden');
-        thanks.textContent = langData[currentLang]?.thanks || 'Thanks! 🌟';
-    }
-    toast(`تە ${val} ستێرە دان! ⭐`, 'fa-star');
-    
-    // Trigger celebration
-    if (val >= 4 && typeof UI !== 'undefined') {
-        UI.celebrate();
-    }
+    if (thanks) thanks.classList.remove('hidden');
+    toast('تە ' + val + ' ستێرە دان! ⭐', 'fa-star');
 }
 
 // ===== Input Management =====
@@ -151,99 +332,110 @@ function pasteLink() {
             const input = document.getElementById('tiktokUrl');
             if (input) input.value = text;
             toast('لینک پەیست بوو 📋', 'fa-paste');
-        }).catch(() => { 
-            toast('دەستەیری نینە بۆ پەیستکرنێ!', 'fa-exclamation-triangle'); 
+        }).catch(() => {
+            toast('دەستەیری نینە بۆ پەیستکرنێ!', 'fa-exclamation-triangle');
         });
+    } else {
+        toast('وێبگەڕەکەت ڕێگە بە خوێندنەوەی بڵۆک کراو نادات.', 'fa-exclamation-triangle');
     }
 }
 
+// ===== Mode Switch =====
 function switchMode(mode) {
     currentMode = mode;
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     const input = document.getElementById('tiktokUrl');
     const icon = document.getElementById('inputIcon');
     const l = langData[currentLang] || langData['badini'];
-    
+
     if (mode === 'link') {
-        document.getElementById('modeLink')?.classList.add('active');
+        const modeLink = document.getElementById('modeLink');
+        if (modeLink) modeLink.classList.add('active');
         if (input) input.placeholder = l.placeholder;
         if (icon) icon.className = "input-icon fa-solid fa-link";
     } else {
-        document.getElementById('modeUsername')?.classList.add('active');
+        const modeUsername = document.getElementById('modeUsername');
+        if (modeUsername) modeUsername.classList.add('active');
         if (input) input.placeholder = l.placeholderUser;
         if (icon) icon.className = "input-icon fa-solid fa-at";
     }
 }
 
-// ===== PWA Functions =====
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!sessionStorage.getItem('pwa_dismissed') && !isIosDevice()) {
-        setTimeout(() => {
-            document.getElementById('pwaBanner')?.classList.add('show');
-        }, 3000);
-    }
-});
+// ===== Language =====
+function changeLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('tikjet_lang', lang);
+    const l = langData[lang] || langData['badini'];
 
-function installPwa() {
-    if (!deferredPrompt) return;
-    document.getElementById('pwaBanner')?.classList.remove('show');
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-}
+    const isEnglish = (lang === 'en');
+    document.documentElement.dir = isEnglish ? 'ltr' : 'rtl';
+    document.documentElement.lang = isEnglish ? 'en' : (lang === 'ar' ? 'ar' : 'ku');
 
-function dismissPwa() {
-    document.getElementById('pwaBanner')?.classList.remove('show');
-    sessionStorage.setItem('pwa_dismissed', 'true');
-}
+    const elements = {
+        mainTitle: l.title,
+        txtPaste: l.paste,
+        txtDownload: l.download,
+        txtQuickQuestion: l.quickQ,
+        txtGuideTitle: l.guideT,
+        txtFaqHeader: l.faqHead,
+        txtFollowers: l.followers,
+        txtHearts: l.hearts,
+        txtAlbum: l.album,
+        txtHistoryTitle: l.history,
+        txtTrendingSectionTitle: l.trendingTitle,
+        txtShareSectionTitle: l.shareTitle,
+        txtPwaDesc: l.pwaDesc,
+        txtPwaLater: l.pwaLater,
+        txtIosTitle: l.iosTitle,
+        txtIosSubtitle: l.iosSubtitle,
+        txtIosStep1: l.iosStep1,
+        txtIosStep2: l.iosStep2,
+        txtIosStep3: l.iosStep3,
+        txtIosThanks: l.iosThanks,
+        txtQuickDl: l.quickDl,
+        txtAudioDl: l.audioDl,
+        txtDlAll: l.dlAll,
+        txtPromoBtn: l.promoBtn,
+        faqQ1: l.faqQ1,
+        faqA1: l.faqA1,
+        footerCredit: l.footer,
+        step1: l.step1 || '',
+        step2: l.step2 || '',
+        step3: l.step3 || ''
+    };
 
-function isIosDevice() {
-    return ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform)
-    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-}
-
-window.addEventListener('load', () => {
-    if (isIosDevice() && !(('standalone' in window.navigator) && window.navigator.standalone)) {
-        if (!sessionStorage.getItem('ios_pwa_dismissed')) {
-            setTimeout(() => {
-                document.getElementById('iosPwaBanner')?.classList.remove('hidden');
-            }, 2500);
+    for (const [id, text] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el) {
+            if (id === 'txtQualitySelect') {
+                el.innerHTML = '<i class="fa-solid fa-sliders"></i> ' + l.qualitySel;
+            } else if (id === 'btnClearHistory') {
+                el.innerHTML = '<i class="fa-solid fa-trash"></i> ' + l.clearHistory;
+            } else {
+                el.textContent = text;
+            }
         }
     }
-});
 
-function dismissIosBanner() {
-    document.getElementById('iosPwaBanner')?.classList.add('hidden');
-    sessionStorage.setItem('ios_pwa_dismissed', 'true');
+    const btnPwaInstall = document.getElementById('btnPwaInstall');
+    if (btnPwaInstall) btnPwaInstall.textContent = l.pwaInstall;
+
+    const rateThanks = document.getElementById('rateThanks');
+    if (rateThanks) rateThanks.textContent = l.thanks;
+
+    const input = document.getElementById('tiktokUrl');
+    if (input) input.placeholder = currentMode === 'link' ? l.placeholder : l.placeholderUser;
 }
 
-// ===== Share Functions =====
-function shareToSnapchat() {
-    window.open(`https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(window.location.href)}`, '_blank');
-    toast('ڕەوانەی سناپچاتێ بوو! 💛', 'fa-snapchat');
-}
-
-function shareToTelegram() {
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent("باشترین سایت بۆ دابەزاندنا ڤیدیۆیان! 🚀")}`, '_blank');
-    toast('ڕەوانەی تێلێگرامێ بوو! 💙', 'fa-telegram');
-}
-
-// ===== Copy Functions =====
-function copyCaptionText() {
-    const desc = document.getElementById('previewDescription')?.textContent;
-    if(!desc?.trim()) return toast('چ دەق لڤێرە نینە!', 'fa-exclamation-triangle');
-    navigator.clipboard.writeText(desc).then(() => {
-        toast('وەسف هاتە کۆپیکردن! 📋', 'fa-copy');
-    });
-}
-
-function copyGalleryCaption() {
-    const desc = document.getElementById('galleryPopupDesc')?.textContent;
-    if(!desc || desc.startsWith("دهێتە")) return toast('چ دەق نینە!', 'fa-exclamation-triangle');
-    navigator.clipboard.writeText(desc).then(() => { 
-        toast('دەق هاتە کۆپیکردن! 📋', 'fa-copy'); 
-    });
+// ===== Toast =====
+function toast(msg, icon = 'fa-circle-info') {
+    const c = document.getElementById('toastContainer');
+    if (!c) return;
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = '<i class="fa-solid ' + icon + '"></i> ' + msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
 }
 
 // ===== Progress Animation =====
@@ -257,19 +449,14 @@ function animateProgress() {
     setTimeout(() => bar.style.width = '0%', 1600);
 }
 
-// ===== History Management =====
+// ===== History =====
 function renderHistory() {
     const container = document.getElementById('historyContainer');
     const section = document.getElementById('historySection');
     if (!container || !section) return;
-    
-    if (searchHistory.length === 0) { 
-        section.classList.add('hidden'); 
-        return; 
-    }
+    if (searchHistory.length === 0) { section.classList.add('hidden'); return; }
     section.classList.remove('hidden');
     container.innerHTML = '';
-    
     searchHistory.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'history-card';
@@ -287,71 +474,54 @@ function renderHistory() {
 function saveToHistory(value, type) {
     searchHistory = searchHistory.filter(h => h.value !== value);
     searchHistory.unshift({ value, type });
-    if (searchHistory.length > 10) searchHistory.pop();
+    if (searchHistory.length > 5) searchHistory.pop();
     localStorage.setItem('tikjet_history', JSON.stringify(searchHistory));
     renderHistory();
 }
 
-function deleteHistoryItem(index) { 
-    searchHistory.splice(index, 1); 
-    localStorage.setItem('tikjet_history', JSON.stringify(searchHistory)); 
-    renderHistory(); 
-}
-
-function clearHistory() { 
-    searchHistory = []; 
-    localStorage.removeItem('tikjet_history'); 
+function deleteHistoryItem(index) {
+    searchHistory.splice(index, 1);
+    localStorage.setItem('tikjet_history', JSON.stringify(searchHistory));
     renderHistory();
-    toast('مێژوو پاککرایەوە! 🧹', 'fa-check');
 }
 
-function loadHistoryItem(index) { 
-    const item = searchHistory[index]; 
-    if (item) {
-        switchMode(item.type); 
-        const input = document.getElementById('tiktokUrl');
-        if (input) input.value = item.value;
-    }
+function clearHistory() {
+    searchHistory = [];
+    localStorage.removeItem('tikjet_history');
+    renderHistory();
 }
 
-// ===== Download Functions =====
+function loadHistoryItem(index) {
+    const item = searchHistory[index];
+    switchMode(item.type);
+    const input = document.getElementById('tiktokUrl');
+    if (input) input.value = item.value;
+}
+
+// ===== Force Download =====
 async function forceDownload(url, filename) {
-    if (typeof DownloadProgress !== 'undefined') {
-        const progress = DownloadProgress.simulateProgress(2000);
-        
-        try {
-            const response = await fetch(url);
-            if(!response.ok) throw new Error("Download failed");
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl; 
-            a.download = filename;
-            document.body.appendChild(a); 
-            a.click(); 
-            a.remove();
-            progress.complete();
-            toast('داونلۆد تەواو بوو! ✅', 'fa-check-circle');
-            
-            // Track download
-            if (typeof Analytics !== 'undefined') {
-                const detected = SmartDetect?.detect(url);
-                if (detected) Analytics.trackDownload(detected.platform);
-            }
-        } catch { 
-            progress.error();
-            window.open(url, '_blank');
-            toast('لە پەنجەرەی نوێدا کرایەوە 🌐', 'fa-external-link');
-        }
-    } else {
+    toast('داونلۆد دەستی پێکرد... 📥', 'fa-spinner fa-spin');
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Download failed");
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast('داونلۆد تەواو بوو! ✅', 'fa-check-circle');
+    } catch {
         window.open(url, '_blank');
     }
 }
 
 function downloadWithQuality(quality) {
     if (!currentActiveVideoUrl) return toast('هیچ میدیا نینە!', 'fa-times');
-    toast(`کواڵیتیا ${quality} دهێتە حازرکرن... 🚀`, 'fa-circle-notch fa-spin');
-    setTimeout(() => { forceDownload(currentActiveVideoUrl, `KrdDown_${quality}_video.mp4`); }, 1000);
+    toast('کواڵیتیا ' + quality + ' دهێتە حازرکرن... 🚀', 'fa-circle-notch fa-spin');
+    setTimeout(() => { forceDownload(currentActiveVideoUrl, 'KrdDown_' + quality + '_video.mp4'); }, 1000);
 }
 
 function downloadPremiumQuality() {
@@ -364,170 +534,12 @@ function downloadPremiumQuality() {
 
 function downloadAllPhotos() {
     if (albumImages.length === 0) return;
-    albumImages.forEach((url, i) => { 
-        setTimeout(() => forceDownload(url, `KrdDown_Image_${i+1}.jpg`), i * 400); 
-    });
+    albumImages.forEach((url, i) => { setTimeout(() => forceDownload(url, 'KrdDown_Image_' + (i + 1) + '.jpg'), i * 400); });
 }
 
-// ===== Main Download =====
-async function downloadVideo() {
-    let input = document.getElementById('tiktokUrl')?.value.trim();
-    if (!input) return toast('تکایە دەقەکێ بنڤیسە!', 'fa-exclamation');
-    
-    animateProgress();
-    const btn = document.getElementById('btnDownload');
-    if (btn) btn.disabled = true;
-    
-    // Hide all cards
-    ['previewCard', 'photoCard', 'vipUserCard'].forEach(id => {
-        document.getElementById(id)?.classList.add('hidden');
-    });
-    
-    // Detect platform
-    const platform = SmartDetect?.detect(input);
-    
-    try {
-        if (platform && platform.platform !== 'username') {
-            // Use universal download
-            await downloadAnyPlatform(input);
-        } else if (currentMode === 'link') {
-            // Try TikTok API
-            const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(input)}`;
-            const res = await fetch(apiUrl);
-            const data = await res.json();
-            
-            if (data.code === 0 && data.data) {
-                saveToHistory(input, currentMode);
-                const d = data.data;
-                
-                if (d.images && d.images.length > 0) {
-                    // Photo album
-                    albumImages = d.images;
-                    displayPhotoAlbum(d.images);
-                } else {
-                    // Video
-                    currentActiveVideoUrl = d.play;
-                    displayVideoPreview({
-                        videoUrl: d.play,
-                        audioUrl: d.music,
-                        author: d.author?.nickname || 'User',
-                        title: d.title || '',
-                        platform: 'tiktok',
-                        id: d.id || Date.now()
-                    });
-                }
-                toast('سەرکەفتی بوو! 🎉', 'fa-check');
-                
-                // Track download
-                if (typeof Analytics !== 'undefined') {
-                    Analytics.trackDownload('tiktok');
-                }
-            } else {
-                toast('میدیا نەهاتە دیتن!', 'fa-times');
-            }
-        }
-    } catch { 
-        toast('کێشەیەک هەیە د تۆرێ دا!', 'fa-times'); 
-    } finally { 
-        if (btn) btn.disabled = false; 
-    }
-}
-
-async function downloadAnyPlatform(url) {
-    if (!url) {
-        url = document.getElementById('tiktokUrl')?.value.trim();
-    }
-    if (!url) return;
-    
-    const result = await KrdAPI.downloadMedia(url);
-    
-    if (result.success) {
-        saveToHistory(url, 'link');
-        
-        if (result.type === 'album') {
-            albumImages = result.images;
-            displayPhotoAlbum(result.images);
-        } else {
-            currentActiveVideoUrl = result.videoUrl;
-            displayVideoPreview(result);
-        }
-        
-        toast('سەرکەفتی بوو! 🎉', 'fa-check-circle');
-        
-        // Track download
-        if (typeof Analytics !== 'undefined') {
-            Analytics.trackDownload(result.platform);
-        }
-    } else {
-        toast('دابەزاندن سەرکەفتی نەبوو! 😕', 'fa-times-circle');
-    }
-}
-
-function displayPhotoAlbum(images) {
-    const grid = document.getElementById('photoGrid');
-    const card = document.getElementById('photoCard');
-    if (!grid || !card) return;
-    
-    grid.innerHTML = '';
-    images.forEach((url, i) => {
-        const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
-        const container = document.createElement('div');
-        container.className = "relative group rounded-lg overflow-hidden";
-        container.innerHTML = `
-            <img src="${proxyUrl}" class="w-full aspect-square object-cover" alt="Photo ${i+1}" loading="lazy">
-            <button onclick="forceDownload('${url}', 'KrdDown_Photo_${i+1}.jpg')" 
-                    class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold">
-                <i class="fa-solid fa-download mr-1"></i> دابەزێنە
-            </button>
-        `;
-        grid.appendChild(container);
-    });
-    
-    card.classList.remove('hidden');
-    card.scrollIntoView({ behavior: 'smooth' });
-}
-
-function displayVideoPreview(result) {
-    const pCard = document.getElementById('previewCard');
-    if (!pCard) return;
-    
-    pCard.classList.remove('hidden');
-    
-    const video = document.getElementById('previewVideo');
-    const image = document.getElementById('previewImage');
-    
-    if (video) {
-        video.classList.remove('hidden');
-        video.src = result.videoUrl;
-    }
-    if (image) image.classList.add('hidden');
-    
-    const author = document.getElementById('previewAuthor');
-    const desc = document.getElementById('previewDescription');
-    
-    if (author) author.textContent = result.author;
-    if (desc) desc.textContent = result.title || 'Ready to Download';
-    
-    const dlBtn = document.getElementById('previewDownloadBtn');
-    const audioBtn = document.getElementById('previewDownloadAudioBtn');
-    
-    if (dlBtn) dlBtn.onclick = () => forceDownload(result.videoUrl, `KrdDown_${result.platform}_${result.id}.mp4`);
-    if (audioBtn) audioBtn.onclick = () => forceDownload(result.audioUrl || result.videoUrl, `KrdDown_Audio_${result.id}.mp3`);
-    
-    pCard.scrollIntoView({ behavior: 'smooth' });
-}
-
-// ===== Gallery Functions =====
-function loadTrendingVideo(url) {
-    switchMode('link');
-    const input = document.getElementById('tiktokUrl');
-    if (input) input.value = url;
-    toast('ڤیدیۆیا ترێند هاتە جێگیرکرن!', 'fa-fire');
-    document.getElementById('tiktokUrl')?.scrollIntoView({ behavior: 'smooth' });
-}
-
+// ===== Custom Gallery =====
 async function openCustomGallery(index) {
-    if(!activeGalleryList || activeGalleryList.length === 0) return;
+    if (!activeGalleryList || activeGalleryList.length === 0) return;
     activeGalleryIndex = index;
     const modal = document.getElementById('customGalleryModal');
     if (modal) modal.style.display = 'flex';
@@ -538,111 +550,293 @@ async function loadVideoInGalleryPopup() {
     const currentItem = activeGalleryList[activeGalleryIndex];
     const videoElement = document.getElementById('galleryPopupVideo');
     if (!videoElement) return;
-    
-    videoElement.pause(); 
+    videoElement.pause();
     videoElement.src = '';
-    
-    const author = document.getElementById('galleryPopupAuthor');
-    const desc = document.getElementById('galleryPopupDesc');
-    
-    if (author) author.textContent = "...";
-    if (desc) desc.textContent = "دهێتە حازرکرن / Loading...";
+    const authorEl = document.getElementById('galleryPopupAuthor');
+    const descEl = document.getElementById('galleryPopupDesc');
+    if (authorEl) authorEl.textContent = "...";
+    if (descEl) descEl.textContent = "دهێتە حازرکرن / Loading...";
 
     try {
-        const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(currentItem.url)}`;
-        const res = await fetch(apiUrl);
+        let directApiUrl = 'https://www.tikwm.com/api/?url=' + encodeURIComponent(currentItem.url);
+        const res = await fetch(directApiUrl);
         const json = await res.json();
-        
-        if(json.code === 0 && json.data) {
+
+        if (json.code === 0 && json.data) {
             const d = json.data;
             videoElement.src = d.play;
-            videoElement.play().catch(()=>{});
-            if (author) author.textContent = d.author?.nickname || 'User';
-            if (desc) desc.textContent = d.title || '';
-            
+            videoElement.play().catch(() => {});
+            if (authorEl) authorEl.textContent = d.author.nickname || 'User';
+            if (descEl) descEl.textContent = d.title || '';
             const dlBtn = document.getElementById('galleryPopupDlBtn');
             const audioBtn = document.getElementById('galleryPopupAudioBtn');
-            
-            if (dlBtn) dlBtn.onclick = () => forceDownload(d.play, `KrdDown_${d.id}.mp4`);
-            if (audioBtn) audioBtn.onclick = () => forceDownload(d.music, `KrdDown_AUDIO_${d.id}.mp3`);
+            if (dlBtn) dlBtn.onclick = () => forceDownload(d.play, 'KrdDown_' + d.id + '.mp4');
+            if (audioBtn) audioBtn.onclick = () => forceDownload(d.music, 'KrdDown_AUDIO_' + d.id + '.mp3');
         } else {
-            if (desc) desc.textContent = "میدیا نەهاتە دیتن!";
+            if (descEl) descEl.textContent = "میدیا نەهاتە دیتن!";
         }
     } catch {
-        if (desc) desc.textContent = "کێشەیەک د تۆرێ دا هەیە";
+        if (descEl) descEl.textContent = "کێشەیەک د تۆرێ دا هەیە";
     }
 }
 
 function navigateCustomGallery(direction) {
-    if(activeGalleryList.length <= 1) return;
+    if (activeGalleryList.length <= 1) return;
     activeGalleryIndex += direction;
-    if(activeGalleryIndex >= activeGalleryList.length) activeGalleryIndex = 0;
-    if(activeGalleryIndex < 0) activeGalleryIndex = activeGalleryList.length - 1;
+    if (activeGalleryIndex >= activeGalleryList.length) activeGalleryIndex = 0;
+    if (activeGalleryIndex < 0) activeGalleryIndex = activeGalleryList.length - 1;
     loadVideoInGalleryPopup();
 }
 
 function closeCustomGallery() {
-    document.getElementById('galleryPopupVideo')?.pause();
+    const video = document.getElementById('galleryPopupVideo');
+    if (video) video.pause();
     const modal = document.getElementById('customGalleryModal');
     if (modal) modal.style.display = 'none';
 }
 
-// ===== Trending Videos =====
-async function loadTrendingSection() {
-    const grid = document.getElementById('trendingGrid');
-    if (!grid) return;
-    
-    try {
-        if (typeof KrdAPI !== 'undefined') {
-            const trending = await KrdAPI.getTrendingVideos();
-            grid.innerHTML = '';
-            
-            trending.slice(0, 6).forEach((item) => {
-                const card = document.createElement('div');
-                card.className = "bg-white/5 rounded-xl overflow-hidden p-2 border border-white/5 cursor-pointer hover:border-pink-500/30 transition-all";
-                card.onclick = () => {
-                    const input = document.getElementById('tiktokUrl');
-                    if (input) input.value = item.url;
-                    downloadVideo();
-                };
-                card.innerHTML = `
-                    <div class="aspect-[9/14] bg-slate-800 rounded-lg relative overflow-hidden flex items-center justify-center">
-                        <i class="fa-solid fa-play text-white/40 text-xl absolute"></i>
-                        <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[9px] text-white">
-                            <i class="fa-solid fa-fire text-orange-500 mr-1"></i> Trending
-                        </div>
-                    </div>
-                    <span class="text-[10px] block mt-1.5 text-slate-300 font-bold truncate">${item.title || 'Trending Video'}</span>
-                `;
-                grid.appendChild(card);
+// ===== Main Download =====
+async function downloadVideo() {
+    let input = document.getElementById('tiktokUrl');
+    if (!input) return;
+    input = input.value.trim();
+    if (!input) return toast('تکایە دەقەکێ بنڤیسە!', 'fa-exclamation');
+
+    animateProgress();
+    const btn = document.getElementById('btnDownload');
+    if (btn) btn.disabled = true;
+
+    const previewCard = document.getElementById('previewCard');
+    const photoCard = document.getElementById('photoCard');
+    const vipCard = document.getElementById('vipUserCard');
+    if (previewCard) previewCard.classList.add('hidden');
+    if (photoCard) photoCard.classList.add('hidden');
+    if (vipCard) vipCard.classList.add('hidden');
+
+    // If not TikTok, use Cobalt API
+    if (currentMode === 'link' && (!input.includes('tiktok.com') && !input.includes('vmt.io'))) {
+        try {
+            const response = await fetch('https://api.cobalt.tools/api/json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ url: input, vQuality: '720', filenamePattern: 'basic' })
             });
+            const result = await response.json();
+
+            if (result.status === 'redirect' || result.status === 'stream') {
+                saveToHistory(input, currentMode);
+                currentActiveVideoUrl = result.url;
+
+                const pCard = document.getElementById('previewCard');
+                if (pCard) pCard.classList.remove('hidden');
+                const img = document.getElementById('previewImage');
+                const vid = document.getElementById('previewVideo');
+                if (img) img.classList.add('hidden');
+                if (vid) {
+                    vid.classList.remove('hidden');
+                    vid.src = result.url;
+                }
+                const author = document.getElementById('previewAuthor');
+                const desc = document.getElementById('previewDescription');
+                if (author) author.textContent = 'Social Media Media';
+                if (desc) desc.textContent = 'Ready to Download';
+                const dlBtn = document.getElementById('previewDownloadBtn');
+                const audioBtn = document.getElementById('previewDownloadAudioBtn');
+                if (dlBtn) dlBtn.onclick = () => forceDownload(result.url, 'download.mp4');
+                if (audioBtn) audioBtn.onclick = () => forceDownload(result.url, 'audio.mp3');
+
+                toast('سەرکەفتی بوو! 🎉', 'fa-check');
+            } else if (result.status === 'picker' && result.picker && result.picker.length > 0) {
+                saveToHistory(input, currentMode);
+                albumImages = result.picker.map(item => item.url);
+                const grid = document.getElementById('photoGrid');
+                if (grid) {
+                    grid.innerHTML = '';
+                    albumImages.forEach((url, i) => {
+                        const proxyUrl = 'https://images.weserv.nl/?url=' + encodeURIComponent(url);
+                        const container = document.createElement('div');
+                        container.className = "relative group rounded-lg overflow-hidden";
+                        container.innerHTML = '<img src="' + proxyUrl + '" class="w-full aspect-square object-cover" alt="Image"><button onclick="forceDownload(\'' + url + '\', \'img_' + i + '.jpg\')" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold"><i class="fa-solid fa-download"></i></button>';
+                        grid.appendChild(container);
+                    });
+                }
+                if (photoCard) photoCard.classList.remove('hidden');
+                toast('سەرکەفتی بوو! 🎉', 'fa-check');
+            } else {
+                toast('میدیا نەهاتە دیتن یان بلۆک کراوە!', 'fa-times');
+            }
+        } catch {
+            toast('کێشەیەک هەیە د سێرڤەری گشتی دا!', 'fa-times');
+        } finally {
+            if (btn) btn.disabled = false;
         }
-    } catch(e) {
-        grid.innerHTML = '<div class="col-span-full text-center text-xs text-slate-400 py-4">Trending videos unavailable</div>';
+        return;
+    }
+
+    // TikTok API
+    try {
+        let apiUrl = currentMode === 'link'
+            ? 'https://www.tikwm.com/api/?url=' + encodeURIComponent(input)
+            : 'https://www.tikwm.com/api/user/posts?unique_id=' + encodeURIComponent(input.replace('@', '')) + '&count=15';
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        if (data.code === 0 && data.data) {
+            saveToHistory(input, currentMode);
+            if (currentMode === 'link') {
+                const d = data.data;
+                if (d.images && d.images.length > 0) {
+                    albumImages = d.images;
+                    const grid = document.getElementById('photoGrid');
+                    if (grid) {
+                        grid.innerHTML = '';
+                        d.images.forEach((url, i) => {
+                            const proxyUrl = 'https://images.weserv.nl/?url=' + encodeURIComponent(url);
+                            const container = document.createElement('div');
+                            container.className = "relative group rounded-lg overflow-hidden";
+                            container.innerHTML = '<img src="' + proxyUrl + '" class="w-full aspect-square object-cover" alt="Album Image"><button onclick="forceDownload(\'' + url + '\', \'img_' + i + '.jpg\')" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold"><i class="fa-solid fa-download"></i></button>';
+                            grid.appendChild(container);
+                        });
+                    }
+                    if (photoCard) photoCard.classList.remove('hidden');
+                } else {
+                    currentActiveVideoUrl = d.play;
+                    const pCard = document.getElementById('previewCard');
+                    if (pCard) pCard.classList.remove('hidden');
+                    const img = document.getElementById('previewImage');
+                    const vid = document.getElementById('previewVideo');
+                    if (img) img.classList.add('hidden');
+                    if (vid) {
+                        vid.classList.remove('hidden');
+                        vid.src = d.play;
+                    }
+                    const author = document.getElementById('previewAuthor');
+                    const desc = document.getElementById('previewDescription');
+                    if (author) author.textContent = d.author.nickname || 'User';
+                    if (desc) desc.textContent = d.title || '';
+                    const dlBtn = document.getElementById('previewDownloadBtn');
+                    const audioBtn = document.getElementById('previewDownloadAudioBtn');
+                    if (dlBtn) dlBtn.onclick = () => forceDownload(d.play, 'video.mp4');
+                    if (audioBtn) audioBtn.onclick = () => forceDownload(d.music, 'music.mp3');
+                }
+            } else {
+                const posts = data.data.videos;
+                if (posts && posts.length > 0) {
+                    const user = posts[0].author;
+                    const vipAvatar = document.getElementById('vipAvatar');
+                    const vipName = document.getElementById('vipName');
+                    const vipUsername = document.getElementById('vipUsername');
+                    const vipFollowers = document.getElementById('vipFollowers');
+                    const vipHearts = document.getElementById('vipHearts');
+                    if (vipAvatar) vipAvatar.src = user.avatar;
+                    if (vipName) vipName.textContent = user.nickname;
+                    if (vipUsername) vipUsername.textContent = '@' + user.unique_id;
+                    if (vipFollowers) vipFollowers.textContent = 'N/A';
+                    if (vipHearts) vipHearts.textContent = 'N/A';
+
+                    const grid = document.getElementById('vipPostGrid');
+                    if (grid) {
+                        grid.innerHTML = '';
+                        activeGalleryList = posts.map(p => ({ url: 'https://www.tiktok.com/@' + user.unique_id + '/video/' + p.video_id }));
+                        posts.forEach((p, idx) => {
+                            const item = document.createElement('div');
+                            item.className = "relative rounded-xl overflow-hidden aspect-square bg-slate-800 cursor-pointer group";
+                            item.innerHTML = '<img src="' + p.cover + '" class="w-full h-full object-cover" alt="Cover"><div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-play text-white text-lg"></i></div>';
+                            item.onclick = () => { openCustomGallery(idx); };
+                            grid.appendChild(item);
+                        });
+                    }
+                    if (vipCard) vipCard.classList.remove('hidden');
+                } else {
+                    toast('چو پۆست نەهاتنە دیتن!', 'fa-times');
+                }
+            }
+            toast('سەرکەفتی بوو! 🎉', 'fa-check');
+        } else {
+            toast('میدیا نەهاتە دیتن!', 'fa-times');
+        }
+    } catch {
+        toast('کێشەیەک هەیە د تۆرێ دا!', 'fa-times');
+    } finally {
+        if (btn) btn.disabled = false;
     }
 }
 
-// ===== Service Worker =====
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+// ===== Smart Download (uses KrdAPI if available) =====
+async function downloadAnyPlatform(url) {
+    if (!url) {
+        const input = document.getElementById('tiktokUrl');
+        if (input) url = input.value.trim();
+    }
+    if (!url) return;
+
+    if (typeof KrdAPI !== 'undefined' && KrdAPI.downloadMedia) {
+        animateProgress();
+        const btn = document.getElementById('btnDownload');
+        if (btn) btn.disabled = true;
+
+        try {
+            const result = await KrdAPI.downloadMedia(url);
+            if (result.success) {
+                saveToHistory(url, 'link');
+                if (result.type === 'album') {
+                    albumImages = result.images;
+                    displayPhotoAlbum(result.images);
+                } else {
+                    currentActiveVideoUrl = result.videoUrl;
+                    displayVideoPreview(result);
+                }
+                toast('سەرکەفتی بوو! 🎉', 'fa-check-circle');
+                if (typeof Analytics !== 'undefined') Analytics.trackDownload(result.platform);
+            } else {
+                toast('دابەزاندن سەرکەفتی نەبوو! 😕', 'fa-times-circle');
+            }
+        } catch {
+            toast('کێشەیەک ڕوویدا!', 'fa-times');
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    } else {
+        // Fallback to default download
+        downloadVideo();
+    }
+}
+
+function displayPhotoAlbum(images) {
+    const grid = document.getElementById('photoGrid');
+    const card = document.getElementById('photoCard');
+    if (!grid || !card) return;
+    grid.innerHTML = '';
+    images.forEach((url, i) => {
+        const proxyUrl = 'https://images.weserv.nl/?url=' + encodeURIComponent(url);
+        const container = document.createElement('div');
+        container.className = "relative group rounded-lg overflow-hidden";
+        container.innerHTML = '<img src="' + proxyUrl + '" class="w-full aspect-square object-cover" alt="Photo"><button onclick="forceDownload(\'' + url + '\', \'KrdDown_Photo_' + (i + 1) + '.jpg\')" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold"><i class="fa-solid fa-download mr-1"></i> دابەزێنە</button>';
+        grid.appendChild(container);
     });
+    card.classList.remove('hidden');
+    card.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ===== Toast (Fallback) =====
-if (typeof toast === 'undefined') {
-    function toast(msg, icon = 'fa-circle-info') {
-        const c = document.getElementById('toastContainer');
-        if (!c) return;
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.innerHTML = `<i class="fa-solid ${icon}"></i> ${msg}`;
-        c.appendChild(t);
-        setTimeout(() => {
-            t.style.opacity = '0';
-            t.style.transform = 'translateX(100%)';
-            t.style.transition = 'all 0.3s ease';
-            setTimeout(() => t.remove(), 300);
-        }, 3000);
+function displayVideoPreview(result) {
+    const pCard = document.getElementById('previewCard');
+    if (!pCard) return;
+    pCard.classList.remove('hidden');
+    const img = document.getElementById('previewImage');
+    const vid = document.getElementById('previewVideo');
+    if (img) img.classList.add('hidden');
+    if (vid) {
+        vid.classList.remove('hidden');
+        vid.src = result.videoUrl;
     }
+    const author = document.getElementById('previewAuthor');
+    const desc = document.getElementById('previewDescription');
+    if (author) author.textContent = result.author;
+    if (desc) desc.textContent = result.title || 'Ready to Download';
+    const dlBtn = document.getElementById('previewDownloadBtn');
+    const audioBtn = document.getElementById('previewDownloadAudioBtn');
+    if (dlBtn) dlBtn.onclick = () => forceDownload(result.videoUrl, 'KrdDown_' + result.platform + '_' + result.id + '.mp4');
+    if (audioBtn) audioBtn.onclick = () => forceDownload(result.audioUrl || result.videoUrl, 'KrdDown_Audio_' + result.id + '.mp3');
+    pCard.scrollIntoView({ behavior: 'smooth' });
 }
