@@ -3,9 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="KrdDown - باشترین دابەزێنەری ڤیدیۆ و ستۆریێن تۆڕێن جڤاکی | أفضل موقع لتحميل الفيديوهات | Best Social Media Downloader">
-    <meta name="keywords" content="KrdDown, downloader, tiktok no watermark, instagram downloader, facebook video, snapchat download, pinterest save">
-    <title>KrdDown | دابەزێنەری گشتی</title>
+    <meta name="description" content="KrdDown - باشترین دابەزێنەری ڤیدیۆ و ستۆریێن تۆڕێن جڤاکی | 20+ پلاتفۆرم | بێ واتەرمارک | خێرا و بێبەرامبەر">
+    <meta name="keywords" content="KrdDown, downloader, tiktok no watermark, instagram downloader, facebook video, snapchat download, pinterest save, youtube downloader, kurdish downloader">
+    <title>KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری</title>
+    
+    <!-- Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
@@ -14,9 +16,26 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KrdDown">
     <meta name="application-name" content="KrdDown">
+    <meta name="theme-color" content="#0a0a1a">
+    
+    <!-- SEO / Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://krddown.vercel.app/">
+    <meta property="og:title" content="KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری">
+    <meta property="og:description" content="دابەزاندنی ڤیدیۆ و ستۆری تۆڕە کۆمەڵایەتییەکان بە کوالیتی بەرز و بێ واتەرمارک">
+    <meta property="og:image" content="https://krddown.vercel.app/icon.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری">
+    <meta name="twitter:image" content="https://krddown.vercel.app/icon.png">
+    
+    <!-- External Resources -->
     <script src="https://pl29886983.effectivecpmnetwork.com/d3/93/40/d3934077e9523de11fad986c4fc273e4.js" async></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="animations.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@300;500;700;900&display=swap');
         
@@ -465,7 +484,7 @@
     </style>
   </head>
   <body>
-    <!-- WELCOME MODAL FOR 5 SOCIAL NETWORKS -->
+    <!-- WELCOME MODAL -->
     <div id="welcomeModal" class="welcome-modal">
         <div class="welcome-content glass w-[90%] max-w-[450px] p-6 rounded-3xl text-center border border-white/10 shadow-2xl">
             <h2 class="text-xl font-black text-white mb-2 flex items-center justify-center gap-2">
@@ -500,7 +519,7 @@
         </div>
     </div>
 
-    <!-- CONTACT POPUP MODAL -->
+    <!-- CONTACT MODAL -->
     <div id="contactModal" class="welcome-modal" onclick="closeContactModal(event)">
         <div class="welcome-content glass w-[90%] max-w-[400px] p-6 rounded-3xl text-center border border-white/10 shadow-2xl relative">
             <button onclick="document.getElementById('contactModal').classList.remove('show')" class="absolute top-4 left-4 w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white text-xs transition-all">
@@ -520,6 +539,7 @@
 
     <div class="toast-container" id="toastContainer"></div>
     
+    <!-- PWA BANNER -->
     <div id="pwaBanner" class="p-4 flex items-center justify-between gap-4 backdrop-blur-xl">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-xl shadow-md flex-shrink-0">
@@ -536,6 +556,7 @@
       </div>
     </div>
 
+    <!-- iOS PWA BANNER -->
     <div id="iosPwaBanner" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[450px] bg-slate-950/95 border border-pink-500/30 backdrop-blur-xl rounded-3xl p-5 z-[99999] shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(236,72,153,0.15)] animate-bounce-short">
       <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
         <div class="flex items-center gap-3">
@@ -570,6 +591,7 @@
       </div>
     </div>
 
+    <!-- HEADER BAR -->
     <div class="social-header-bar bg-black/20 border-b border-white/5 py-2">
       <div class="container mx-auto px-4 flex justify-between items-center">
         <div class="flex gap-4">
@@ -591,6 +613,7 @@
       </div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <div class="min-h-screen">
       <header class="container mx-auto px-4 py-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -610,12 +633,14 @@
       </header>
 
       <main class="container mx-auto px-4 max-w-2xl py-4">
+        <!-- Ad Space -->
         <div class="mb-4 flex justify-center overflow-hidden rounded-xl bg-white/5 border border-white/5 p-1 max-w-full">
           <div style="height: 50px; width: 320px; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted);">
              KrdDown Advertisement Block
           </div>
         </div>
 
+        <!-- Title & Guide -->
         <div class="text-center mb-6">
           <h1 id="mainTitle" class="text-2xl sm:text-3xl font-extrabold neon-title leading-tight">دابەزاندنا ڤیدیۆ و ستۆریێن تۆڕێن جڤاکی بێ لۆگۆ</h1>
           <button onclick="toggleQuickGuide()" class="mt-2 text-xs font-bold text-pink-500 hover:underline flex items-center justify-center gap-1.5 mx-auto cursor-pointer bg-pink-500/10 px-3 py-1.5 rounded-full">
@@ -633,7 +658,7 @@
               </li>
               <li class="flex items-start gap-2">
                 <span class="w-5 h-5 rounded-full bg-pink-500/20 text-pink-500 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">2</span>
-                <p id="step2">لینکێ ل کadرا ژوورێ دابنێ (پێوەکە) یان ناڤێ پڕۆفایلی بنڤیسە.</p>
+                <p id="step2">لینکێ ل کادرا ژوورێ دابنێ (پێوەکە) یان ناڤێ پڕۆفایلی بنڤیسە.</p>
               </li>
               <li class="flex items-start gap-2">
                 <span class="w-5 h-5 rounded-full bg-pink-500/20 text-pink-500 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">3</span>
@@ -643,6 +668,7 @@
           </div>
         </div>
 
+        <!-- Main Download Card -->
         <div class="glass rounded-3xl p-5 shadow-2xl">
           <div class="flex gap-2 justify-center mb-4">
             <button onclick="switchMode('link')" id="modeLink" class="mode-btn active"><i class="fa-solid fa-link"></i> URL Link</button>
@@ -678,7 +704,7 @@
           </div>
         </div>
         
-        <!-- MODERN DEVELOPER CARD -->
+        <!-- Developer Card -->
         <div class="dev-card-modern p-5 mt-5 rounded-3xl text-right">
             <h4 class="text-sm font-black text-purple-400 flex items-center gap-2 mb-2">
                 گەشەپێدەرێ KrdDown 🚀
@@ -693,6 +719,7 @@
             </div>
         </div>
         
+        <!-- VIP Card -->
         <div id="vipUserCard" class="hidden vip-card p-6 mt-5">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -716,6 +743,7 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4" id="vipPostGrid"></div>
         </div>
 
+        <!-- Preview Card -->
         <div id="previewCard" class="hidden glass rounded-3xl p-5 mt-5">
           <video id="previewVideo" class="w-full max-h-[350px] object-contain rounded-xl bg-black" controls></video>
           <img id="previewImage" class="hidden w-full max-h-[350px] object-contain rounded-xl bg-black" alt="Preview">
@@ -757,6 +785,7 @@
           </div>
         </div>
 
+        <!-- Photo Card -->
         <div id="photoCard" class="hidden glass rounded-3xl p-5 mt-5">
           <div class="flex justify-between items-center mb-3">
             <span id="txtAlbum" class="text-sm font-bold">ئەلبومێن وێنەیان</span>
@@ -765,6 +794,7 @@
           <div class="grid grid-cols-3 gap-2" id="photoGrid"></div>
         </div>
 
+        <!-- History -->
         <div id="historySection" class="hidden glass rounded-3xl p-5 mt-5">
           <div class="flex justify-between items-center mb-3">
             <span id="txtHistoryTitle" class="text-xs font-bold text-slate-400">دوایین لێگەرینەکان</span>
@@ -775,6 +805,7 @@
           <div id="historyContainer" class="space-y-2"></div>
         </div>
 
+        <!-- Trending -->
         <div class="glass rounded-3xl p-5 mt-5 border border-pink-500/10">
           <h3 class="text-sm font-black text-pink-500 mb-3 flex items-center gap-2">
             <i class="fa-solid fa-fire-flame-curved text-orange-500"></i> <span id="txtTrendingSectionTitle">ڤیدیۆیێن ترێند یێن کوردی (Trending Reels)</span>
@@ -797,12 +828,14 @@
           </div>
         </div>
 
+        <!-- Promo -->
         <div class="mt-5 space-y-4">
           <button onclick="window.open('https://www.effectivecpmnetwork.com/pyz9djf0zb', '_blank')" class="w-full btn-pink text-white font-black py-3.5 rounded-2xl shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm tracking-wide animate-pulse">
             <i class="fa-solid fa-gift text-lg"></i> <span id="txtPromoBtn">🚀 خەڵات و دیاریێن ئەڤڕۆ (کلیک بکە)</span> <i class="fa-solid fa-circle-arrow-right text-xs"></i>
           </button>
         </div>
 
+        <!-- FAQ -->
         <div class="glass rounded-3xl p-5 mt-5">
           <h3 class="text-sm font-bold text-pink-500 mb-2 flex items-center gap-1.5">
             <i class="fa-solid fa-circle-question"></i> <span id="txtFaqHeader">پرسیارێن بەربڵاو (FAQs)</span>
@@ -817,6 +850,7 @@
           </div>
         </div>
 
+        <!-- Rating -->
         <div class="glass rounded-3xl p-5 mt-5 text-center">
           <div class="star-rating">
             <input type="radio" id="5-stars" name="rating" value="5" onclick="submitRate(5)" />
@@ -839,7 +873,7 @@
       </footer>
     </div>
 
-    <!-- ADVANCED USER GALLERY LAYER -->
+    <!-- GALLERY MODAL -->
     <div id="customGalleryModal" class="custom-gallery-modal">
         <div class="custom-gallery-content">
             <button onclick="closeCustomGallery()" class="custom-gallery-close">
@@ -886,5 +920,12 @@
     <script src="sounds.js"></script>
     <script src="analytics.js"></script>
     <script src="app.js"></script>
+    
+    <!-- ===== NEW FEATURES ===== -->
+    <script src="particles.js"></script>
+    <script src="github-integration.js"></script>
+    <script src="sponsor.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="kurdistan-calendar.js"></script>
 </body>
 </html>
