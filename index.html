@@ -11,16 +11,17 @@
     <meta name="application-name" content="KrdDown">
     
     <!-- ===== SEO Meta Tags ===== -->
-    <meta name="description" content="KrdDown - باشترین دابەزێنەری ڤیدیۆ و ستۆریێن تۆڕێن جڤاکی | بێ لۆگۆ | بێبەرامبەر | خێراترین">
-    <meta name="keywords" content="KrdDown, downloader, tiktok no watermark, instagram downloader, facebook video, snapchat download, kurdish downloader, دابەزاندن, ڤیدیۆ, کوردی">
+    <meta name="description" content="KrdDown - باشترین دابەزێنەری ڤیدیۆ و ستۆریێن تۆڕێن جڤاکی | بێ لۆگۆ | بێبەرامبەر | خێراترین | TikTok, Instagram, YouTube, Facebook">
+    <meta name="keywords" content="KrdDown, downloader, tiktok no watermark, instagram downloader, youtube downloader, facebook video, snapchat download, kurdish downloader, دابەزاندن, ڤیدیۆ, کوردی">
     <meta name="author" content="Zaniyar Al-Mzuri Al-Kurdi">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://krddown.vercel.app/">
     
     <!-- ===== Open Graph / Facebook ===== -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://krddown.vercel.app/">
-    <meta property="og:title" content="KrdDown | دابەزێنەری گشتی بێ لۆگۆ">
-    <meta property="og:description" content="دابەزاندنی ڤیدیۆ و ستۆری تۆڕە کۆمەڵایەتییەکان بە کوالیتی بەرز و بێ نیشانەی ئاوی">
+    <meta property="og:title" content="KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری بێ لۆگۆ">
+    <meta property="og:description" content="دابەزاندنی ڤیدیۆ و ستۆری تۆڕە کۆمەڵایەتییەکان بە کوالیتی بەرز و بێ نیشانەی ئاوی - TikTok, Instagram, YouTube, Facebook">
     <meta property="og:image" content="https://krddown.vercel.app/icon.png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
@@ -30,7 +31,7 @@
     <!-- ===== Twitter Cards ===== -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://krddown.vercel.app/">
-    <meta name="twitter:title" content="KrdDown | دابەزێنەری گشتی بێ لۆگۆ">
+    <meta name="twitter:title" content="KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری بێ لۆگۆ">
     <meta name="twitter:description" content="دابەزاندنی ڤیدیۆ و ستۆری تۆڕە کۆمەڵایەتییەکان بە کوالیتی بەرز و بێ نیشانەی ئاوی">
     <meta name="twitter:image" content="https://krddown.vercel.app/icon.png">
     
@@ -41,12 +42,13 @@
         "@type": "WebApplication",
         "name": "KrdDown",
         "url": "https://krddown.vercel.app/",
-        "description": "دابەزاندنی ڤیدیۆ و ستۆری تۆڕە کۆمەڵایەتییەکان بێ لۆگۆ",
+        "description": "دابەزاندنی ڤیدیۆ و ستۆری تۆڕە کۆمەڵایەتییەکان بێ لۆگۆ - TikTok, Instagram, YouTube, Facebook",
         "applicationCategory": "Multimedia",
         "operatingSystem": "All",
         "author": {
             "@type": "Person",
-            "name": "Zaniyar Al-Mzuri Al-Kurdi"
+            "name": "Zaniyar Al-Mzuri Al-Kurdi",
+            "url": "https://www.instagram.com/z44nko"
         },
         "offers": {
             "@type": "Offer",
@@ -56,7 +58,7 @@
     }
     </script>
     
-    <title>KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری</title>
+    <title>KrdDown | دابەزێنەری گشتی ڤیدیۆ و ستۆری بێ لۆگۆ</title>
     
     <!-- ===== Icons ===== -->
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
@@ -90,6 +92,10 @@
                     <span class="flex items-center gap-3"><i class="fa-brands fa-instagram text-lg text-pink-500"></i> Instagram (ئینستاگرام)</span>
                     <i class="fa-solid fa-chevron-left text-xs opacity-40"></i>
                 </button>
+                <button onclick="selectNetwork('YouTube', 'linear-gradient(135deg, #ff0000, #cc0000)')" class="network-btn net-youtube w-full bg-slate-900/80 border border-white/5 py-3.5 px-4 rounded-2xl text-left flex items-center justify-between text-white text-sm font-bold">
+                    <span class="flex items-center gap-3"><i class="fa-brands fa-youtube text-lg text-red-500"></i> YouTube (یوتیوب)</span>
+                    <i class="fa-solid fa-chevron-left text-xs opacity-40"></i>
+                </button>
                 <button onclick="selectNetwork('Snapchat', 'linear-gradient(135deg, #fffc00, #f1e400)')" class="network-btn net-snapchat w-full bg-slate-900/80 border border-white/5 py-3.5 px-4 rounded-2xl text-left flex items-center justify-between text-white text-sm font-bold">
                     <span class="flex items-center gap-3"><i class="fa-brands fa-snapchat text-lg text-amber-400"></i> Snapchat (سناپ چات)</span>
                     <i class="fa-solid fa-chevron-left text-xs opacity-40"></i>
@@ -100,10 +106,6 @@
                 </button>
                 <button onclick="selectNetwork('Pinterest', 'linear-gradient(135deg, #e60023, #b3001b)')" class="network-btn net-pinterest w-full bg-slate-900/80 border border-white/5 py-3.5 px-4 rounded-2xl text-left flex items-center justify-between text-white text-sm font-bold">
                     <span class="flex items-center gap-3"><i class="fa-brands fa-pinterest text-lg text-red-600"></i> Pinterest (پینترێست)</span>
-                    <i class="fa-solid fa-chevron-left text-xs opacity-40"></i>
-                </button>
-                <button onclick="selectNetwork('YouTube', 'linear-gradient(135deg, #ff0000, #cc0000)')" class="network-btn net-youtube w-full bg-slate-900/80 border border-white/5 py-3.5 px-4 rounded-2xl text-left flex items-center justify-between text-white text-sm font-bold">
-                    <span class="flex items-center gap-3"><i class="fa-brands fa-youtube text-lg text-red-500"></i> YouTube (یوتیوب)</span>
                     <i class="fa-solid fa-chevron-left text-xs opacity-40"></i>
                 </button>
             </div>
@@ -515,8 +517,13 @@
 
     <!-- ===== SCRIPTS ===== -->
     <script src="lang.js"></script>
+    <script src="smart-detect.js"></script>
     <script src="api.js"></script>
+    <script src="progress.js"></script>
+    <script src="batch.js"></script>
     <script src="app.js"></script>
     <script src="ui.js"></script>
+    <script src="sounds.js"></script>
+    <script src="analytics.js"></script>
 </body>
 </html>
